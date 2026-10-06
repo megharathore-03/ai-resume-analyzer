@@ -1,0 +1,19 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>CareerLens AI — Resume Analyzer</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+<header class="nav"><div class="brand">CareerLens <span>AI</span></div><nav><a href="#analyzer">Analyzer</a><a href="#features">Features</a><a href="#history">History</a></nav></header>
+<main>
+<section class="hero"><div><p class="eyebrow">AI-POWERED CAREER PLATFORM</p><h1>Turn your resume into a <span>career roadmap.</span></h1><p class="hero-copy">Analyze ATS compatibility, discover skill gaps, match job roles and get an actionable learning roadmap.</p><a class="primary" href="#analyzer">Analyze Resume →</a></div><div class="hero-card"><div class="mini-score">92<span>/100</span></div><b>ATS compatibility</b><small>AI-powered resume insights</small></div></section>
+<section id="analyzer" class="section"><div class="section-title"><p class="eyebrow">01 · ANALYZE</p><h2>Resume Analyzer</h2><p>Upload your resume or paste the text. Add a job description for targeted matching.</p></div>
+<div class="workspace"><form id="form" class="panel"><label>Resume file <small>PDF, DOCX or TXT · max 8 MB</small></label><input type="file" name="resume_file" accept=".pdf,.docx,.txt"><div class="or">OR PASTE RESUME</div><textarea name="resume_text" id="resume" placeholder="Paste your complete resume here..."></textarea><div class="two"><div><label>Target role</label><input name="target_role" placeholder="e.g. Full Stack Developer"></div><div><label>Job description <small>optional</small></label><input name="job_description" placeholder="Paste key requirements or full JD"></div></div><button id="submit" class="primary" type="submit">Run AI Analysis</button><p id="status" class="status"></p></form>
+<div id="results" class="panel results empty"><div class="empty-icon">✦</div><h3>Your analysis will appear here</h3><p>Run an analysis to see your ATS score, strengths, gaps and career roadmap.</p></div></div></section>
+<section id="features" class="section"><div class="section-title"><p class="eyebrow">02 · FEATURES</p><h2>Built for placement preparation</h2></div><div class="cards"><article><b>ATS Score</b><p>Understand how well your resume matches recruiter screening systems.</p></article><article><b>Skill Gap</b><p>Find missing technical skills and keywords for your target role.</p></article><article><b>Career Roadmap</b><p>Get a practical sequence of skills to learn next.</p></article><article><b>Interview Prep</b><p>Use the analyzed role and skills as the foundation for future interview modules.</p></article></div></section>
+<section id="history" class="section"><div class="section-title"><p class="eyebrow">03 · HISTORY</p><h2>Previous analyses</h2></div><div id="historyList" class="history panel">Loading history...</div></section>
+</main><footer>CareerLens AI · B.Tech CSE Final Year Project</footer>
+<script src="{{ url_for('static', filename='app.js') }}"></script>
+</body></html>
