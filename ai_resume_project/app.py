@@ -1,7 +1,7 @@
 import os, json, sqlite3, re
 from datetime import datetime
 from pathlib import Path
-from flask import Flask, render_template, request, jsonify, send_file
+from flask import Flask, render_template, request, jsonify
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -12,6 +12,9 @@ UPLOAD_DIR.mkdir(exist_ok=True)
 
 app = Flask(__name__)
 app.config['MAX_CONTENT_LENGTH'] = 8 * 1024 * 1024
+
+# Initialize the database when Flask/Gunicorn starts the app.
+init_db_called = False
 
 
 def db():
@@ -34,8 +37,24 @@ def init_db():
 
 
 def extract_pdf(path):
+    # First try pypdf.
     from pypdf import PdfReader
-    return '\n'.join((p.extract_text() or '') for p in PdfReader(path).pages)
+    try:
+        text = '\n'.join((p.extract_text() or '') for p in PdfReader(str(path)).pages).strip()
+        if text:
+            return text
+    except Exception:
+        pass
+
+    # Fallback to PyMuPDF for PDFs where pypdf cannot extract the text cleanly.
+    try:
+        import fitz
+        doc = fitz.open(str(path))
+        text = '\n'.join(page.get_text('text') or '' for page in doc).strip()
+        doc.close()
+        return text
+    except Exception as e:
+        raise ValueError(f'Could not read this PDF: {e}')
 
 
 def extract_docx(path):
@@ -45,7 +64,11 @@ def extract_docx(path):
 
 def extract_text(file):
     name = file.filename.lower()
-    path = UPLOAD_DIR / file.filename
+    from werkzeug.utils import secure_filename
+    safe_name = secure_filename(file.filename)
+    if not safe_name:
+        raise ValueError('Invalid file name.')
+    path = UPLOAD_DIR / safe_name
     file.save(path)
     try:
         if name.endswith('.pdf'):
@@ -108,7 +131,10 @@ def analyze():
     upload = request.files.get('resume_file')
     if upload and upload.filename:
         filename = upload.filename
-        resume = extract_text(upload).strip()
+        try:
+            resume = extract_text(upload).strip()
+        except ValueError as e:
+            return jsonify(error=str(e)), 400
     if not resume:
         return jsonify(error='Please paste your resume or upload a PDF/DOCX/TXT file.'), 400
     if len(resume) < 80:
@@ -141,6 +167,8 @@ def history_item(item_id):
 def health(): return jsonify(status='ok')
 
 
+# Run once at import time so it also works with Gunicorn/Render.
+init_db()
+
 if __name__ == '__main__':
-    init_db()
     app.run(debug=True)
